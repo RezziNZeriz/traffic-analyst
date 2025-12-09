@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Website Peneliti - Input Data Lalu Lintas</title>
+    
+    <!-- ============ PASSWORD PROTECTION ============ -->
+    <script>
+        // Password untuk akses mode peneliti
+        const PASSWORD_PENELITI = "peneliti123";
+        
+        // Cek apakah sudah punya akses
+        const hasAccess = localStorage.getItem('peneliti_access') === 'granted';
+        const accessTime = localStorage.getItem('peneliti_access_time');
+        
+        // Jika belum ada akses, minta password
+        if (!hasAccess) {
+            const userPassword = prompt(
+                "🔐 MASUKKAN PASSWORD UNTUK AKSES MODE PENELITI\n" +
+                "(Hanya peneliti yang berwenang yang boleh akses)"
+            );
+            
+            if (userPassword === PASSWORD_PENELITI) {
+                localStorage.setItem('peneliti_access', 'granted');
+                localStorage.setItem('peneliti_access_time', Date.now());
+                alert("✅ Akses diberikan! Anda bisa menginput data.");
+            } else {
+                alert("❌ Password salah! Anda akan dialihkan ke mode pengguna.");
+                window.location.href = "http://localhost:3000/pengguna";
+            }
+        } else {
+            // Cek jika akses sudah lebih dari 2 jam, minta password lagi
+            const TWO_HOURS = 2 * 60 * 60 * 1000; // 2 jam dalam milidetik
+            if (Date.now() - parseInt(accessTime) > TWO_HOURS) {
+                localStorage.removeItem('peneliti_access');
+                localStorage.removeItem('peneliti_access_time');
+                alert("⏰ Sesi telah habis. Silakan login kembali.");
+                window.location.reload();
+            }
+        }
+        
+        // Fungsi logout untuk digunakan nanti
+        function logoutPeneliti() {
+            if (confirm("Yakin ingin keluar dari Mode Peneliti?")) {
+                localStorage.removeItem('peneliti_access');
+                localStorage.removeItem('peneliti_access_time');
+                alert("Anda telah logout dari Mode Peneliti.");
+                window.location.href = "http://localhost:3000/pengguna";
+            }
+        }
+    </script>
+    <!-- ============ END PASSWORD PROTECTION ============ -->
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        .header h1 {
+            color: #333;
+            margin-bottom: 5px;
+        }
+        .header p {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        /* INFO AKSES */
+        .access-info {
+            background: #e7f3ff;
+            border-left: 4px solid #2196F3;
+            padding: 12px 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .access-info .text {
+            font-size: 14px;
+            color: #0d47a1;
+        }
+        .access-info .btn-logout {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 5px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+        .access-info .btn-logout:hover {
+            background: #c82333;
+        }
+        
+        /* Tabs Style */
+        .tabs {
+            display: flex;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #eee;
+        }
+        .tab-btn {
+            padding: 12px 24px;
+            border: none;
+            background: none;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            color: #666;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+        .tab-btn.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+        .tab-btn:hover:not(.active) {
+            color: #333;
+            background: #f8f9fa;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        
+        .nav-links {
+            text-align: center;
+            margin-top: 30px;
+        }
+        .nav-links a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: bold;
+            margin: 0 10px;
+        }
+        .form-section {
+            margin-bottom: 30px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #444;
+        }
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 16px;
+        }
+        .row {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        .row > div {
+            flex: 1;
+        }
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+        .btn-danger:hover {
+            background: #c82333;
+        }
+        .btn-info {
+            background: #17a2b8;
+            color: white;
+        }
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        .table-container {
+            margin-top: 30px;
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: center;
+        }
+        th {
+            background: #f8f9fa;
+            font-weight: 600;
+        }
+        .status {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            display: none;
+        }
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            display: block;
+        }
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+            display: block;
+        }
+        .status.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+            display: block;
+        }
+        .traffic-indicator {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+        .macet { background: #dc3545; }
+        .sedang { background: #ffc107; }
+        .lancar { background: #28a745; }
+        .hidden {
+            display: none;
+        }
+        
+        /* Dataset Items */
+        .dataset-item {
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+            background: white;
+        }
+        .dataset-item:hover {
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .dataset-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .dataset-actions {
+            display: flex;
+            gap: 10px;
+        }
+        .dataset-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            color: #666;
+            font-size: 14px;
+        }
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        .no-data {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔬 WEBSITE PENELITI</h1>
+            <p>Input dan kelola data kepadatan lalu lintas</p>
+        </div>
+        
+        <!-- INFO AKSES -->
+        <div class="access-info">
+            <div class="text">
+                <strong>🔐 Mode Peneliti (Terproteksi)</strong> - Hanya akses dengan password
+            </div>
+            <button class="btn-logout" onclick="logoutPeneliti()">
+                🚪 Logout
+            </button>
+        </div>
+
+        <!-- Tabs Navigation -->
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="input">📥 Input Data Baru</button>
+            <button class="tab-btn" data-tab="manage">📊 Kelola Data Saya</button>
+        </div>
+
+        <!-- Tab 1: Input Data Baru -->
+        <div class="tab-content active" id="tab-input">
+            <div class="form-section">
+                <h2>📝 Input Data Baru</h2>
+                
+                <div class="form-group">
+                    <label for="location">📍 Nama Lokasi *</label>
+                    <input type="text" id="location" placeholder="Contoh: Simpang Lonsum, Medan" required>
+                </div>
+
+                <div class="row">
+                    <div>
+                        <label for="date">📅 Tanggal Pengamatan *</label>
+                        <input type="date" id="date" required>
+                    </div>
+                    <div>
+                        <label for="startTime">⏰ Waktu Mulai *</label>
+                        <input type="time" id="startTime" value="07:00" required>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div>
+                        <label for="interval">⏱️ Interval (menit) *</label>
+                        <select id="interval">
+                            <option value="5">5 menit</option>
+                            <option value="10" selected>10 menit</option>
+                            <option value="15">15 menit</option>
+                            <option value="30">30 menit</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="count">🔢 Jumlah Interval *</label>
+                        <input type="number" id="count" min="1" max="20" value="8" required>
+                    </div>
+                </div>
+
+                <button class="btn btn-primary" id="generateBtn">📋 Buat Tabel Input</button>
+            </div>
+
+            <!-- Tabel Input (Awalnya tersembunyi) -->
+            <div class="form-section hidden" id="tableSection">
+                <h2>🚗 Data Kendaraan per Interval</h2>
+                <div class="table-container">
+                    <table id="dataTable">
+                        <thead>
+                            <tr>
+                                <th>No</th>
+                                <th>Waktu</th>
+                                <th>Jumlah Kendaraan</th>
+                                <th>Keterangan</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody">
+                            <!-- Diisi oleh JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <div style="margin-top: 20px; display: flex; gap: 10px;">
+                    <button class="btn btn-secondary" id="sampleBtn">🎲 Isi Data Contoh</button>
+                    <button class="btn btn-success" id="saveBtn">💾 Simpan ke Server</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab 2: Kelola Data Saya -->
+        <div class="tab-content" id="tab-manage">
+            <h2>📊 Data yang Sudah Disimpan</h2>
+            <p>Kelola dan hapus data yang telah Anda input:</p>
+            
+            <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; margin: 20px 0;">
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <input type="text" id="searchData" placeholder="Cari data..." style="flex: 1; padding: 10px;">
+                    <button class="btn btn-info" id="refreshData">🔄 Refresh</button>
+                </div>
+            </div>
+            
+            <div id="datasetsContainer">
+                <div class="loading">Memuat data...</div>
+            </div>
+        </div>
+
+        <!-- Status Message -->
+        <div class="status" id="statusMessage"></div>
+
+        <!-- Navigation -->
+        <div class="nav-links">
+            <p>
+                <a href="http://localhost:3000/">🏠 Dashboard Utama</a> | 
+                <a href="http://localhost:3000/pengguna" target="_blank">👥 Lihat Website Pengguna</a>
+            </p>
+            <p style="margin-top: 10px; color: #666; font-size: 14px;">
+                Data yang disimpan akan langsung tersedia untuk dilihat oleh semua pengguna
+            </p>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

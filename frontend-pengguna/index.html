@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Website Pengguna - Lihat Data Lalu Lintas</title>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .header {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        .stat-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            min-width: 150px;
+            border-top: 5px solid #4facfe;
+        }
+        .stat-number {
+            font-size: 32px;
+            font-weight: bold;
+            color: #333;
+            display: block;
+        }
+        .stat-label {
+            color: #666;
+            font-size: 14px;
+        }
+        .filter-section {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .filter-row {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        .filter-group {
+            flex: 1;
+            min-width: 200px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #444;
+        }
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 16px;
+        }
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-right: 10px;
+            transition: all 0.3s;
+        }
+        .btn-primary {
+            background: #4facfe;
+            color: white;
+        }
+        .btn-primary:hover {
+            background: #3a9bf7;
+            transform: translateY(-2px);
+        }
+        .datasets-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .dataset-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            border-left: 5px solid #4facfe;
+        }
+        .dataset-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+        }
+        .dataset-card h3 {
+            color: #333;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .traffic-level {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        .level-macet { background: #fee; color: #dc3545; border: 1px solid #fcc; }
+        .level-sedang { background: #fef9e7; color: #f39c12; border: 1px solid #f9e79f; }
+        .level-lancar { background: #e8f8f5; color: #28a745; border: 1px solid #abebc6; }
+        .chart-container {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-top: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            display: none;
+        }
+        .chart-container.active {
+            display: block;
+        }
+        .loading {
+            text-align: center;
+            padding: 50px;
+            color: #666;
+            font-size: 18px;
+        }
+        .no-data {
+            text-align: center;
+            padding: 50px;
+            color: #666;
+            background: white;
+            border-radius: 15px;
+            margin-top: 20px;
+        }
+        .nav-links {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+        }
+        .nav-links a {
+            color: #4facfe;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .time-peak {
+            background: #fff3cd;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+            border-left: 4px solid #ffc107;
+        }
+        .hidden {
+            display: none;
+        }
+        .details {
+            margin-top: 15px;
+            color: #666;
+            font-size: 14px;
+        }
+        .recommendation {
+            background: #e8f4fd;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            border-left: 4px solid #17a2b8;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>👥 WEBSITE PENGGUNA</h1>
+            <p>Analisis Data Kepadatan Lalu Lintas dari Berbagai Lokasi</p>
+            
+            <div class="stats" id="statsContainer">
+                <div class="stat-card">
+                    <span class="stat-number" id="statTotal">0</span>
+                    <span class="stat-label">Total Dataset</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number" id="statLocations">0</span>
+                    <span class="stat-label">Lokasi</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number" id="statVehicles">0</span>
+                    <span class="stat-label">Total Kendaraan</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filter Section -->
+        <div class="filter-section">
+            <h3 style="margin-bottom: 20px; color: #333;">🔍 Filter Data</h3>
+            <div class="filter-row">
+                <div class="filter-group">
+                    <label for="search">Cari Lokasi</label>
+                    <input type="text" id="search" placeholder="Ketik nama lokasi...">
+                </div>
+                <div class="filter-group">
+                    <label for="dateFilter">Tanggal</label>
+                    <input type="date" id="dateFilter">
+                </div>
+                <div class="filter-group">
+                    <label for="conditionFilter">Kondisi Lalu Lintas</label>
+                    <select id="conditionFilter">
+                        <option value="">Semua Kondisi</option>
+                        <option value="MACET PARAH">Macet Parah</option>
+                        <option value="MACET">Macet</option>
+                        <option value="SEDANG">Sedang</option>
+                        <option value="LANCAR">Lancar</option>
+                    </select>
+                </div>
+            </div>
+            <div style="margin-top: 20px;">
+                <button class="btn btn-primary" id="applyFilter">Terapkan Filter</button>
+                <button class="btn" id="resetFilter" style="background: #6c757d; color: white;">Reset</button>
+                <button class="btn" id="refreshBtn" style="background: #28a745; color: white;">🔄 Refresh Data</button>
+            </div>
+        </div>
+
+        <!-- Datasets List -->
+        <div id="datasetsContainer">
+            <div class="loading" id="loadingData">Memuat data lalu lintas...</div>
+        </div>
+
+        <!-- Chart Container -->
+        <div class="chart-container" id="chartContainer">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2 id="chartTitle">Analisis Kepadatan Lalu Lintas</h2>
+                <button class="btn" id="backBtn" style="background: #6c757d; color: white;">← Kembali ke List</button>
+            </div>
+            
+            <!-- Chart -->
+            <div style="position: relative; height: 400px; margin-bottom: 30px;">
+                <canvas id="trafficChart"></canvas>
+            </div>
+            
+            <!-- Statistics -->
+            <div class="stats" id="chartStats" style="justify-content: flex-start; gap: 20px; margin-top: 30px;"></div>
+            
+            <!-- Peak Time Info -->
+            <div class="time-peak" id="peakInfo"></div>
+            
+            <!-- Recommendations -->
+            <div class="recommendation" id="recommendations"></div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="nav-links">
+            <p>
+                <a href="http://localhost:3000/">🏠 Dashboard Utama</a> 
+            </p>
+            <p style="margin-top: 10px; color: #666; font-size: 14px;">
+                Data diperbarui secara real-time dari input peneliti
+            </p>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

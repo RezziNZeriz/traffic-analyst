@@ -1,0 +1,84 @@
+{
+  "datasets": [
+    {
+      "location": "simpang kesawan",
+      "date": "2025-12-08",
+      "startTime": "07:00",
+      "intervalMinutes": 15,
+      "intervalCount": 4,
+      "timeSlots": [
+        "07:00-07:15",
+        "07:15-07:30",
+        "07:30-07:45",
+        "07:45-08:00"
+      ],
+      "trafficData": [
+        {
+          "vehicles": 353,
+          "note": "macet"
+        },
+        {
+          "vehicles": 390,
+          "note": "macet"
+        },
+        {
+          "vehicles": 437,
+          "note": "macet"
+        },
+        {
+          "vehicles": 321,
+          "note": "macet"
+        }
+      ],
+      "totalVehicles": 1501,
+      "averageVehicles": 375,
+      "peakVehicles": 437,
+      "trafficCondition": {
+        "level": "MACET",
+        "color": "#fd7e14"
+      },
+      "id": "ds_1765157703105",
+      "createdAt": "2025-12-08T01:35:03.105Z"
+    },
+    {
+      "location": "simpang lonsum",
+      "date": "2025-12-08",
+      "startTime": "07:00",
+      "intervalMinutes": 15,
+      "intervalCount": 4,
+      "timeSlots": [
+        "07:00-07:15",
+        "07:15-07:30",
+        "07:30-07:45",
+        "07:45-08:00"
+      ],
+      "trafficData": [
+        {
+          "vehicles": 378,
+          "note": "macet"
+        },
+        {
+          "vehicles": 379,
+          "note": "macet"
+        },
+        {
+          "vehicles": 434,
+          "note": "macet"
+        },
+        {
+          "vehicles": 329,
+          "note": "macet"
+        }
+      ],
+      "totalVehicles": 1520,
+      "averageVehicles": 380,
+      "peakVehicles": 434,
+      "trafficCondition": {
+        "level": "MACET",
+        "color": "#fd7e14"
+      },
+      "id": "ds_1765195722344",
+      "createdAt": "2025-12-08T12:08:42.345Z"
+    }
+  ]
+}
