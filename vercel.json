@@ -1,7 +1,6 @@
 {
   "buildCommand": "npm run vercel-build",
   "outputDirectory": "public",
-  "framework": "static",
   "installCommand": "npm install && cd backend && npm install",
   "routes": [
     {
