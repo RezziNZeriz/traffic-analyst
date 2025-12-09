@@ -1,0 +1,27 @@
+{
+  "buildCommand": "npm run vercel-build",
+  "outputDirectory": "public",
+  "framework": "static",
+  "installCommand": "npm install && cd backend && npm install",
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/backend/server.js"
+    },
+    {
+      "src": "/frontend-peneliti/(.*)",
+      "dest": "/frontend-peneliti/$1"
+    },
+    {
+      "src": "/frontend-pengguna/(.*)",
+      "dest": "/frontend-pengguna/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/frontend-pengguna/$1"
+    }
+  ],
+  "env": {
+    "NODE_ENV": "production"
+  }
+}

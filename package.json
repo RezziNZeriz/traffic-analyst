@@ -1,0 +1,13 @@
+{
+  "name": "traffic-analyst",
+  "version": "1.0.0",
+  "description": "Sistem Analisis Lalu Lintas",
+  "scripts": {
+    "build": "echo 'Building frontend'",
+    "vercel-build": "echo 'Build complete'",
+    "start": "cd backend && node server.js",
+    "dev": "cd backend && npm run dev"
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}
